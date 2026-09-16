@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>⭐ Космический сбор</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:#05050f;--card:rgba(20,18,45,.78);--purple:#6c5ce7;--purple2:#a29bfe;--star:#ffd93d;--pink:#ff6b9d;--text:#eaeaff;--muted:rgba(234,234,255,.55);--line:rgba(162,155,254,.25)}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:radial-gradient(ellipse at 50% -10%,#1a1147 0%,#0d0a25 45%,#05050f 100%);color:var(--text);min-height:100dvh;overflow-x:hidden;padding:16px 14px 90px;position:relative}
+.sky{position:fixed;inset:0;pointer-events:none;z-index:0}
+.sky::before{content:'';position:absolute;inset:-50%;background-image:radial-gradient(1.5px 1.5px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 60% 15%,#fff,transparent),radial-gradient(2px 2px at 80% 60%,#fff,transparent),radial-gradient(1px 1px at 35% 80%,#fff,transparent),radial-gradient(1.5px 1.5px at 90% 20%,#c9c4ff,transparent),radial-gradient(1px 1px at 12% 55%,#fff,transparent),radial-gradient(2px 2px at 55% 92%,#fff,transparent),radial-gradient(1px 1px at 72% 45%,#ffd93d,transparent);background-size:100% 100%;animation:tw 6s ease-in-out infinite alternate}
+@keyframes tw{0%{opacity:.35}100%{opacity:.9}}
+.nebula{position:fixed;inset:-30%;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 25% 40%,rgba(108,92,231,.22),transparent 55%),radial-gradient(ellipse at 75% 25%,rgba(255,107,157,.14),transparent 50%),radial-gradient(ellipse at 50% 85%,rgba(0,184,148,.12),transparent 55%);animation:dr 24s ease-in-out infinite alternate}
+@keyframes dr{to{transform:translate(4%,-3%) scale(1.15)}}
+.wrap{position:relative;z-index:1;max-width:440px;margin:0 auto}
+.hdr{text-align:center;margin-bottom:18px}
+.planet{width:70px;height:70px;margin:0 auto 12px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#c5beff,#6c5ce7 55%,#2a1a63);box-shadow:0 0 40px rgba(108,92,231,.65),inset -8px -10px 22px rgba(0,0,0,.45);animation:sp 14s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+h1{font-size:1.5rem;font-weight:900;background:linear-gradient(135deg,#fff 10%,#a29bfe 50%,#ff6b9d 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{font-size:.82rem;color:var(--muted);margin-top:6px}
+.card{background:var(--card);backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 8px 40px rgba(0,0,0,.5);margin-bottom:14px}
+.total{display:flex;align-items:baseline;justify-content:center;gap:8px;margin-bottom:4px}
+.total b{font-size:2.4rem;font-weight:900;color:var(--star);text-shadow:0 0 24px rgba(255,217,61,.55);line-height:1}
+.total span{font-size:1rem;color:var(--muted);font-weight:700}
+.goal-lbl{text-align:center;font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.bar{height:14px;background:rgba(255,255,255,.07);border-radius:8px;overflow:hidden}
+.fill{height:100%;width:0%;border-radius:8px;background:linear-gradient(90deg,#6c5ce7,#a29bfe,#ffd93d,#ff6b9d);background-size:200% 100%;transition:width .9s cubic-bezier(.34,1.56,.64,1);animation:fl 4s linear infinite;box-shadow:0 0 18px rgba(162,155,254,.6)}
+@keyframes fl{to{background-position:200% 0}}
+.pct{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);margin-top:8px}
+.label{font-size:.72px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;font-weight:700}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.chip{padding:11px 4px;border-radius:12px;border:1px solid var(--line);background:rgba(108,92,231,.14);color:var(--text);font-weight:800;font-size:.85rem;cursor:pointer;transition:.18s;display:flex;flex-direction:column;align-items:center;gap:2px}
+.chip small{font-size:.58rem;color:var(--muted);font-weight:600}
+.chip:active{transform:scale(.94)}
+.chip.on{background:linear-gradient(135deg,var(--purple),var(--purple2));border-color:transparent;box-shadow:0 4px 18px rgba(108,92,231,.6)}
+.chip.on small{color:rgba(255,255,255,.75)}
+.input{width:100%;padding:14px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.35);color:#fff;font-size:1rem;font-weight:800;outline:none;text-align:center}
+.input:focus{border-color:var(--purple2);box-shadow:0 0 0 3px rgba(108,92,231,.25)}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+input[type=number]{-moz-appearance:textfield}
+.btn{width:100%;padding:17px;margin-top:12px;border:none;border-radius:16px;font-size:1.05rem;font-weight:900;color:#fff;cursor:pointer;background:linear-gradient(135deg,#6c5ce7,#a29bfe 50%,#ff6b9d);background-size:200% 100%;box-shadow:0 6px 26px rgba(108,92,231,.55);transition:.18s;display:flex;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden}
+.btn::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transform:translateX(-100%);animation:sh 3s infinite}
+@keyframes sh{0%,60%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
+.btn:active{transform:scale(.97)}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.hint{text-align:center;font-size:.72rem;color:var(--muted);margin-top:10px}
+.mine{position:fixed;bottom:12px;left:14px;right:14px;z-index:5;max-width:440px;margin:0 auto;background:rgba(20,18,45,.85);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:16px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.mine span{font-size:.78rem;color:var(--muted);font-weight:700}
+.mine b{font-size:1.15rem;color:var(--star);text-shadow:0 0 14px rgba(255,217,61,.5)}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;padding:12px 24px;border-radius:14px;font-weight:800;font-size:.9rem;z-index:100;transition:transform .4s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 30px rgba(108,92,231,.6);white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="sky"></div>
+<div class="nebula"></div>
+<div class="toast" id="toast"></div>
+
+<div class="wrap">
+  <div class="hdr">
+    <div class="planet"></div>
+    <h1>🚽 Туалет для друга</h1>
+    <p class="sub">Космический сбор звёзд · помоги легенде</p>
+  </div>
+
+  <div class="card">
+    <div class="total"><b id="collected">0</b><span>/ 1000 ⭐</span></div>
+    <div class="goal-lbl">собрано звёзд</div>
+    <div class="bar"><div class="fill" id="fill"></div></div>
+    <div class="pct"><span id="pct">0%</span><span>Цель: 1000 ⭐</span></div>
+  </div>
+
+  <div class="card">
+    <div class="label">Выбери сумму</div>
+    <div class="quick" id="quick">
+      <button class="chip" data-v="1">1<small>⭐</small></button>
+      <button class="chip" data-v="10">10<small>⭐</small></button>
+      <button class="chip" data-v="50">50<small>⭐</small></button>
+      <button class="chip" data-v="100">100<small>⭐</small></button>
+      <button class="chip" data-v="250">250<small>⭐</small></button>
+      <button class="chip" data-v="500">500<small>⭐</small></button>
+      <button class="chip" data-v="1000">1000<small>⭐</small></button>
+      <button class="chip" data-v="10000">10к<small>⭐</small></button>
+    </div>
+    <input class="input" id="custom" type="number" min="1" max="100000" placeholder="своя сумма 1–100000">
+    <button class="btn" id="donate">🚀 Скинуть звёзды</button>
+    <div class="hint">Откроется платёж Telegram Stars</div>
+  </div>
+</div>
+
+<div class="mine">
+  <span>Мой вклад</span>
+  <b id="mine">0 ⭐</b>
+</div>
+
+<script>
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor?.('#05050f'); tg.setBackgroundColor?.('#05050f'); }
+
+const GOAL = 1000;
+const API = 'https://ТВОЙ-БОТ.railway.app'; // ← ЗАМЕНИ на URL бэкенда
+
+const state = {
+  collected: parseInt(localStorage.getItem('collected') || '0', 10),
+  mine:      parseInt(localStorage.getItem('mine') || '0', 10),
+  amount:    10
+};
+
+function save(){ localStorage.setItem('collected', state.collected); localStorage.setItem('mine', state.mine); }
+function haptic(t='light'){ try{ tg?.HapticFeedback?.impactOccurred?.(t); }catch(e){} }
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+
+function render(){
+  document.getElementById('collected').textContent = state.collected.toLocaleString('ru-RU');
+  document.getElementById('mine').textContent = state.mine.toLocaleString('ru-RU') + ' ⭐';
+  const p = Math.min(state.collected / GOAL * 100, 100);
+  document.getElementById('fill').style.width = p + '%';
+  document.getElementById('pct').textContent = p.toFixed(p < 10 ? 1 : 0) + '%';
+}
+render();
+
+document.querySelectorAll('#quick .chip').forEach(c=>{
+  c.onclick = () => {
+    document.querySelectorAll('#quick .chip').forEach(x=>x.classList.remove('on'));
+    c.classList.add('on');
+    state.amount = parseInt(c.dataset.v,10);
+    document.getElementById('custom').value = '';
+    haptic();
+  };
+});
+document.getElementById('custom').addEventListener('input', e=>{
+  const v = Math.max(1, Math.min(100000, parseInt(e.target.value||'0',10)||0));
+  if(v>0){ state.amount = v; document.querySelectorAll('#quick .chip').forEach(x=>x.classList.remove('on')); }
+});
+
+// === РЕАЛЬНЫЙ ПЛАТЁЖ ===
+document.getElementById('donate').onclick = async () => {
+  const amt = state.amount;
+  if (!amt || amt < 1 || amt > 100000) { toast('Сумма от 1 до 100000 ⭐'); return; }
+  haptic('medium');
+
+  if (!tg?.initData) { toast('Открой через Telegram'); return; }
+
+  try {
+    const res = await fetch(API + '/create-invoice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: amt, initData: tg.initData })
+    });
+    const data = await res.json();
+    if (data.invoiceLink) {
+      tg.openInvoice(data.invoiceLink, (status) => {
+        if (status === 'paid') {
+          state.collected += amt;
+          state.mine += amt;
+          save(); render();
+          toast(`🎉 +${amt} ⭐ получено!`);
+          haptic('heavy');
+        } else if (status === 'failed') {
+          toast('❌ Платёж не прошёл');
+        }
+      });
+    } else {
+      toast(data.error || 'Ошибка создания счёта');
+    }
+  } catch(e) {
+    toast('Ошибка соединения');
+  }
+};
+</script>
+</body>
+</html>
